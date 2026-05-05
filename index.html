@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Market Sales Log</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #faf6f0;
+      --warm-white: #fffdf9;
+      --green: #2d5a27;
+      --green-light: #4a7c42;
+      --green-pale: #e8f0e6;
+      --amber: #c97b2e;
+      --amber-light: #f0a84d;
+      --text: #1e1e1e;
+      --text-muted: #6b6b6b;
+      --border: #d9d0c4;
+      --shadow: 0 2px 16px rgba(45,90,39,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* Subtle texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a89070' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: var(--green);
+      border-radius: 50%;
+      margin-bottom: 1rem;
+    }
+
+    .logo-mark svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--cream);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--green);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--green);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--cream);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--green-light);
+      box-shadow: 0 0 0 3px rgba(74,124,66,0.12);
+    }
+
+    .amount-wrap {
+      position: relative;
+    }
+
+    .amount-wrap span {
+      position: absolute;
+      left: 0.95rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    .amount-wrap input {
+      padding-left: 1.7rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 0.5rem;
+      background: var(--green);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    button[type="submit"]:hover { background: var(--green-light); }
+    button[type="submit"]:active { transform: scale(0.99); }
+    button[type="submit"]:disabled { background: #9ab099; cursor: not-allowed; }
+
+    /* Status message */
+    #status {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+      text-align: center;
+    }
+
+    #status.success {
+      display: block;
+      background: var(--green-pale);
+      color: var(--green);
+      border: 1px solid #b2cead;
+    }
+
+    #status.error {
+      display: block;
+      background: #fdecea;
+      color: #b03a2e;
+      border: 1px solid #f5b7b1;
+    }
+
+    #status.loading {
+      display: block;
+      background: #fef9ec;
+      color: var(--amber);
+      border: 1px solid #f5d88e;
+    }
+
+    /* Recent sales log */
+    .recent-card {
+      margin-top: 1.5rem;
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .recent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .recent-header .card-title { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+    .session-total {
+      font-size: 0.85rem;
+      color: var(--amber);
+      font-weight: 500;
+    }
+
+    .sales-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .sale-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0.75rem;
+      background: var(--cream);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      animation: slideIn 0.25s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .sale-left { display: flex; flex-direction: column; gap: 2px; }
+    .sale-name { font-weight: 500; }
+    .sale-product { color: var(--text-muted); font-size: 0.8rem; }
+    .sale-amount { font-weight: 600; color: var(--green); font-size: 0.95rem; }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 1rem 0;
+    }
+
+    /* Config warning banner */
+    #config-banner {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: #7a5c00;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    #config-banner strong { display: block; margin-bottom: 0.2rem; }
+
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-mark">
+      <!-- cheese wedge icon -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 19l10-14 10 14H2zm5-3a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm5-2a1 1 0 100-2 1 1 0 000 2zm3 2a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+      </svg>
+    </div>
+    <h1>Market Sales Log</h1>
+    <p class="subtitle">Point of Sale Recorder</p>
+  </header>
+
+  <!-- Config warning — hidden once SCRIPT_URL is set -->
+  <div id="config-banner">
+    <strong>⚙️ Setup required</strong>
+    Open this file and replace <code>YOUR_APPS_SCRIPT_URL</code> near the bottom with your Google Apps Script Web App URL.
+  </div>
+
+  <div class="card">
+    <div class="card-title">New Sale</div>
+
+    <div class="field">
+      <label for="customer">Customer Name</label>
+      <input type="text" id="customer" placeholder="e.g. Jane" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="item">Item Sold</label>
+      <input type="text" id="item" placeholder="e.g. Pepper Jack (1 lb)" autocomplete="off" />
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="amount">Amount Paid</label>
+        <div class="amount-wrap">
+          <span>$</span>
+          <input type="number" id="amount" placeholder="0.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="method">Payment Method</label>
+        <select id="method">
+          <option value="Cash">Cash</option>
+          <option value="Venmo">Venmo</option>
+          <option value="Card">Card</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" id="submit-btn" onclick="submitSale()">Record Sale</button>
+    <div id="status"></div>
+  </div>
+
+  <div class="recent-card">
+    <div class="recent-header">
+      <div class="card-title">This Session</div>
+      <span class="session-total" id="session-total">$0.00</span>
+    </div>
+    <ul class="sales-list" id="sales-list">
+      <li class="empty-state">No sales recorded yet.</li>
+    </ul>
+  </div>
+
+  <footer>Sales are saved to Google Sheets · Dates recorded automatically</footer>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // CONFIGURATION — paste your Apps Script URL here
+  // ─────────────────────────────────────────────
+  const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL';
+  // ─────────────────────────────────────────────
+
+  // Hide config banner once URL is set
+  if (SCRIPT_URL !== 'YOUR_APPS_SCRIPT_URL') {
+    document.getElementById('config-banner').style.display = 'none';
+  }
+
+  const sessionSales = [];
+  let sessionTotal = 0;
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = type;
+  }
+
+  function formatMoney(n) {
+    return '$' + parseFloat(n).toFixed(2);
+  }
+
+  function addToSessionLog(data) {
+    sessionSales.unshift(data);
+    sessionTotal += parseFloat(data.amount);
+
+    document.getElementById('session-total').textContent = formatMoney(sessionTotal);
+
+    const list = document.getElementById('sales-list');
+    // Remove empty state if present
+    const empty = list.querySelector('.empty-state');
+    if (empty) empty.remove();
+
+    const li = document.createElement('li');
+    li.className = 'sale-item';
+    li.innerHTML = `
+      <div class="sale-left">
+        <span class="sale-name">${escHtml(data.customer)}</span>
+        <span class="sale-product">${escHtml(data.item)} · ${escHtml(data.method)}</span>
+      </div>
+      <span class="sale-amount">${formatMoney(data.amount)}</span>
+    `;
+    list.prepend(li);
+  }
+
+  function escHtml(str) {
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  async function submitSale() {
+    const customer = document.getElementById('customer').value.trim();
+    const item     = document.getElementById('item').value.trim();
+    const amount   = document.getElementById('amount').value.trim();
+    const method   = document.getElementById('method').value;
+
+    if (!customer || !item || !amount) {
+      setStatus('Please fill in customer name, item, and amount.', 'error');
+      return;
+    }
+    if (isNaN(amount) || parseFloat(amount) <= 0) {
+      setStatus('Please enter a valid amount.', 'error');
+      return;
+    }
+    if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL') {
+      // Demo mode — just log locally
+      addToSessionLog({ customer, item, amount, method });
+      setStatus('⚠️ Demo mode: sale logged locally only (no sheet URL set).', 'error');
+      clearForm();
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    setStatus('Saving…', 'loading');
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    const payload = { customer, item, amount: parseFloat(amount).toFixed(2), method, date: dateStr, time: timeStr };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      // no-cors means we can't read the response — assume success
+      addToSessionLog(payload);
+      setStatus('✓ Sale recorded!', 'success');
+      clearForm();
+      setTimeout(() => setStatus('', ''), 3000);
+    } catch (err) {
+      setStatus('Connection error — check your internet and try again.', 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function clearForm() {
+    document.getElementById('customer').value = '';
+    document.getElementById('item').value = '';
+    document.getElementById('amount').value = '';
+    document.getElementById('method').value = 'Cash';
+    document.getElementById('customer').focus();
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') submitSale();
+  });
+</script>
+</body>
+</html>
